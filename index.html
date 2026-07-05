@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Copy Compass — Find the exact angle for your market</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c232d; --line:#2a323d;
+    --ink:#e8edf2; --mut:#9aa7b4; --accent:#ffd23f; --accent2:#00d1b2;
+    --good:#3ddc84; --warn:#ff6b6b; --radius:14px;
+    --sans:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5}
+  a{color:var(--accent2)}
+  .wrap{max-width:920px;margin:0 auto;padding:28px 20px 80px}
+  header.hero{text-align:center;padding:18px 0 8px}
+  .badge{display:inline-block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#0e1116;background:var(--accent);padding:5px 12px;border-radius:999px;font-weight:700}
+  h1{font-size:clamp(28px,5vw,44px);margin:14px 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--mut);max-width:620px;margin:0 auto;font-size:17px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin:20px 0}
+  .card h2{margin:0 0 4px;font-size:19px}
+  .card .hint{color:var(--mut);font-size:14px;margin:0 0 16px}
+  label.q{display:block;font-weight:600;margin:0 0 8px}
+  input[type=text],textarea{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:12px 14px;font-size:15px;font-family:inherit}
+  textarea{resize:vertical;min-height:70px}
+  input:focus,textarea:focus{outline:none;border-color:var(--accent2)}
+  .opts{display:grid;gap:10px}
+  .opt{display:flex;gap:12px;align-items:flex-start;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:13px 15px;cursor:pointer;transition:.15s}
+  .opt:hover{border-color:var(--accent2)}
+  .opt input{margin-top:3px;accent-color:var(--accent2);transform:scale(1.2)}
+  .opt.sel{border-color:var(--accent2);background:#16232a}
+  .opt b{display:block}
+  .opt span{color:var(--mut);font-size:13.5px}
+  .step-n{color:var(--accent);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+  .btn{display:inline-block;background:var(--accent);color:#0e1116;border:none;border-radius:10px;padding:15px 26px;font-size:17px;font-weight:800;cursor:pointer;width:100%;transition:.15s}
+  .btn:hover{filter:brightness(1.05);transform:translateY(-1px)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);font-weight:600;width:auto;padding:10px 18px}
+  .out{display:none}
+  .out.show{display:block;animation:fade .4s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+  .diag{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 18px}
+  .chip{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px}
+  .chip b{color:var(--accent)}
+  .strat{border-left:3px solid var(--accent2);padding:2px 0 2px 16px;margin:14px 0}
+  .strat h3{margin:0 0 6px;font-size:16px}
+  .strat p{margin:0;color:var(--mut);font-size:14.5px}
+  .heads{list-style:none;padding:0;margin:12px 0 0}
+  .heads li{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin:9px 0;display:flex;justify-content:space-between;gap:12px;align-items:center}
+  .heads li span{font-size:15.5px}
+  .copy{background:transparent;border:1px solid var(--line);color:var(--mut);border-radius:7px;padding:6px 11px;font-size:12px;cursor:pointer;white-space:nowrap}
+  .copy:hover{border-color:var(--accent2);color:var(--ink)}
+  .meter{height:8px;background:var(--panel2);border-radius:99px;overflow:hidden;margin:8px 0 2px}
+  .meter i{display:block;height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent))}
+  .foot{text-align:center;color:var(--mut);font-size:13px;margin-top:34px}
+  .pill-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .warnbox{background:#2a1b1b;border:1px solid #46302e;border-radius:10px;padding:12px 15px;color:#ffb4b4;font-size:14px;margin-top:12px}
+  @media(max-width:560px){.heads li{flex-direction:column;align-items:stretch}.copy{align-self:flex-end}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <span class="badge">Copy Compass</span>
+    <h1>Say the right thing to the right market</h1>
+    <p class="sub">Answer five quick questions about who you're selling to. You'll get the exact angle, opening promise, and headline structures that will actually land — instead of guessing.</p>
+  </header>
+
+  <!-- INPUTS -->
+  <div id="form">
+    <div class="card">
+      <span class="step-n">Step 1</span>
+      <h2>What are you selling?</h2>
+      <p class="hint">Your product, service, or offer — in a few words.</p>
+      <input id="product" type="text" placeholder="e.g. a 6-week home strength program for busy dads" />
+    </div>
+
+    <div class="card">
+      <span class="step-n">Step 2</span>
+      <h2>What does your prospect ultimately want?</h2>
+      <p class="hint">The deep result they crave — not your features. You can't invent this want; you can only tap into it.</p>
+      <input id="desire" type="text" placeholder="e.g. to feel strong and respected without living in a gym" />
+    </div>
+
+    <div class="card">
+      <span class="step-n">Step 3</span>
+      <h2>How much does your prospect already know?</h2>
+      <p class="hint">Pick the one that best describes where their head is <em>before</em> they meet your ad.</p>
+      <div class="opts" id="awareness">
+        <label class="opt"><input type="radio" name="aw" value="4"><span><b>They already know your product and just need a nudge</b><span>They know your name and what it does — maybe they've bought before.</span></span></label>
+        <label class="opt"><input type="radio" name="aw" value="3"><span><b>They know products like yours exist</b><span>They're comparing options and shopping around.</span></span></label>
+        <label class="opt"><input type="radio" name="aw" value="2"><span><b>They know a solution exists, but not your product</b><span>They want the result and believe it's possible — they just haven't found you.</span></span></label>
+        <label class="opt"><input type="radio" name="aw" value="1"><span><b>They feel the problem, but don't know a fix exists</b><span>They're frustrated but think it's just how things are.</span></span></label>
+        <label class="opt"><input type="radio" name="aw" value="0"><span><b>They don't even realise they have this problem yet</b><span>Cold. No demand, no vocabulary for it — you have to wake them up.</span></span></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="step-n">Step 4</span>
+      <h2>How "been-there-heard-that" is your market?</h2>
+      <p class="hint">How many competitors are already shouting similar promises at these people?</p>
+      <div class="opts" id="soph">
+        <label class="opt"><input type="radio" name="so" value="1"><span><b>Almost none — this is fresh</b><span>You're first. Nobody is making this promise yet.</span></span></label>
+        <label class="opt"><input type="radio" name="so" value="2"><span><b>A few competitors making similar claims</b><span>The promise works, but others are starting to copy it.</span></span></label>
+        <label class="opt"><input type="radio" name="so" value="3"><span><b>Crowded — everyone makes big claims</b><span>People are getting numb to the promises. Bigger claims stopped working.</span></span></label>
+        <label class="opt"><input type="radio" name="so" value="4"><span><b>Saturated & skeptical</b><span>They've heard every promise and stopped believing them.</span></span></label>
+        <label class="opt"><input type="radio" name="so" value="5"><span><b>Burned out — they tune everything out</b><span>Total distrust. They identify with the problem more than any promise.</span></span></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="step-n">Step 5</span>
+      <h2>What's the single most impressive thing about your offer?</h2>
+      <p class="hint">A proof point, mechanism, speed, guarantee, or number. Optional but sharpens results.</p>
+      <input id="proof" type="text" placeholder="e.g. only 20 minutes, 3x a week — no equipment" />
+    </div>
+
+    <button class="btn" onclick="run()">Build my angle →</button>
+    <div id="err" class="warnbox" style="display:none"></div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div id="result" class="out card">
+    <span class="step-n">Your Copy Compass</span>
+    <h2 id="rtitle">Here's how to talk to this market</h2>
+    <div class="diag" id="diag"></div>
+
+    <div class="strat">
+      <h3>🎯 Where to aim your opening line</h3>
+      <p id="aim"></p>
+    </div>
+    <div class="strat">
+      <h3>🗣️ The tone that will land</h3>
+      <p id="tone"></p>
+    </div>
+    <div class="strat">
+      <h3>⚠️ The mistake to avoid here</h3>
+      <p id="avoid"></p>
+    </div>
+
+    <h3 style="margin:22px 0 2px">Ready-to-tweak headlines for your offer</h3>
+    <p class="hint" style="margin:0">Built from your answers. Edit the wording to your voice, then test the winners.</p>
+    <ul class="heads" id="heads"></ul>
+
+    <div class="pill-row">
+      <button class="btn ghost" onclick="location.reload()">↺ Start over</button>
+      <button class="btn ghost" onclick="copyAll()">⧉ Copy all headlines</button>
+    </div>
+  </div>
+
+  <p class="foot">Copy Compass · a positioning tool for people who sell with words</p>
+</div>
+
+<script>
+// ---- selection styling ----
+document.querySelectorAll('.opt').forEach(o=>{
+  o.addEventListener('click',()=>{
+    const grp=o.closest('.opts');
+    grp.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));
+    o.classList.add('sel');
+    o.querySelector('input').checked=true;
+  });
+});
+
+const val=id=>document.getElementById(id).value.trim();
+const picked=name=>{const el=document.querySelector(`input[name=${name}]:checked`);return el?+el.value:null;};
+
+const AW=[
+ {name:'Unaware',aim:0},
+ {name:'Problem-Aware',aim:1},
+ {name:'Solution-Aware',aim:2},
+ {name:'Product-Aware',aim:3},
+ {name:'Most Aware',aim:4}
+];
+const SO=['','Wide open','Getting competitive','Crowded','Saturated','Burned out'];
+
+function run(){
+  const err=document.getElementById('err');
+  const product=val('product'), desire=val('desire'), proof=val('proof');
+  const aw=picked('aw'), so=picked('so');
+  if(!product||!desire||aw===null||so===null){
+    err.style.display='block';
+    err.textContent='Please fill Steps 1–4 (product, deep want, awareness, and market noise) so the angle actually fits.';
+    return;
+  }
+  err.style.display='none';
+
+  const P=product, D=desire, X=proof;
+
+  // ---- Awareness strategy ----
+  const awMap={
+    4:{aim:`They already know you. Lead with the deal, not the pitch. Name the product, restate the result they came for, and remove the last bit of friction (price, bonus, deadline).`,
+       tone:`Direct and warm — like a reminder from someone they trust. No convincing needed.`,
+       avoid:`Don't re-explain what your product is. Over-selling to a warm buyer creates doubt where there was none.`},
+    3:{aim:`They're comparing you to alternatives. Lead with what makes you the obvious pick — your unique mechanism, proof, or the specific reason you beat the others.`,
+       tone:`Confident and specific. Show, don't claim. Numbers and differentiators over adjectives.`,
+       avoid:`Don't sound like every competitor. If your headline could sit on a rival's page unchanged, it's invisible.`},
+    2:{aim:`They want "${D}" and believe it's possible — they just don't know your product does it. Lead with the result, then reveal your product as the shortcut to it.`,
+       tone:`Promise-forward and hopeful, then made believable with proof. Result first, product second.`,
+       avoid:`Don't open by naming your product. They don't care about it yet — they care about the outcome.`},
+    1:{aim:`They feel the pain but don't know a real fix exists. Lead by naming the problem so sharply they think "that's exactly me" — then open the door to a solution.`,
+       tone:`Empathetic and vivid. Describe their frustration better than they can, before you promise anything.`,
+       avoid:`Don't jump straight to your offer. If they don't feel understood first, your solution sounds like noise.`},
+    0:{aim:`They don't know they have this problem. You can't sell yet — you have to start with a story, a surprising fact, or an identity they relate to, and let the problem dawn on them.`,
+       tone:`Story-led and intriguing. Curiosity and relatability over any pitch.`,
+       avoid:`Don't mention price, product, or promise up top. To a cold reader that's a door slammed in their face.`}
+  }[aw];
+
+  // ---- Sophistication overlay ----
+  const soMap={
+    1:`Because your market is fresh, you can make the simple, direct claim — just state the result plainly and you'll win. Be first and be clear.`,
+    2:`Others are copying the promise, so enlarge it — make your claim bigger, faster, or easier than theirs to stay ahead.`,
+    3:`The market is numb to big claims, so stop claiming and start explaining the mechanism — the "how it works" that makes your promise believable again.`,
+    4:`They've heard it all, so lead with proof and a fresh angle — reframe the problem, or attach your promise to a new identity or enemy they believe in.`,
+    5:`They tune out promises entirely, so meet them at their identity and frustration first. Agree with how they feel, then earn the right to offer anything.`
+  }[so];
+
+  // ---- Headline generators keyed by awareness ----
+  const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+  const proofBit = X ? ` (${X})` : '';
+  const banks={
+    0:[
+      `The quiet reason so many people never get ${D}`,
+      `What nobody tells you about ${D} — until it's too late`,
+      `I ignored this for years. Here's what it cost me.`,
+      `Most people think they're fine. Then they see this.`
+    ],
+    1:[
+      `Tired of the thing standing between you and ${D}?`,
+      `If ${D} feels out of reach, the problem probably isn't you`,
+      `The real reason you still don't have ${D}`,
+      `Stop blaming yourself for not having ${D} yet`
+    ],
+    2:[
+      `How to finally get ${D}${proofBit}`,
+      `The shortcut to ${D} — even if you've tried before`,
+      `Get ${D} with ${P}`,
+      `You're closer to ${D} than you think. Here's the path.`
+    ],
+    3:[
+      `Why ${P} gets you ${D} faster than the rest${proofBit}`,
+      `${cap(P)} — the difference is the ${X||'method'}`,
+      `Not another option. The one built to actually deliver ${D}.`,
+      `See why people switch to ${P} for ${D}`
+    ],
+    4:[
+      `Your ${P} is ready${X?` — ${X}`:''}. Claim it before it's gone.`,
+      `Come back to ${P} and finish getting ${D}`,
+      `One click from ${D}. ${X||'Everything you need is inside.'}`,
+      `You already know ${P} works. Here's your reason to start today.`
+    ]
+  };
+
+  // sophistication tweak: at high sophistication push mechanism/proof-led lines to the top
+  let heads=banks[aw].slice();
+  if(so>=3 && X){
+    heads.unshift(`How ${X} makes ${D} finally stick`);
+  }
+  if(so>=4){
+    heads.unshift(`Skeptical? Good. Here's the proof ${P} delivers ${D}.`);
+  }
+  heads=heads.slice(0,6);
+
+  // ---- render ----
+  document.getElementById('diag').innerHTML=
+    `<span class="chip">Selling: <b>${escapeHtml(P)}</b></span>`+
+    `<span class="chip">Their want: <b>${escapeHtml(D)}</b></span>`+
+    `<span class="chip">Awareness: <b>${AW[aw].name}</b></span>`+
+    `<span class="chip">Market noise: <b>${SO[so]}</b></span>`;
+  document.getElementById('aim').textContent=awMap.aim;
+  document.getElementById('tone').textContent=awMap.tone;
+  document.getElementById('avoid').textContent=awMap.avoid+'  '+soMap;
+
+  const ul=document.getElementById('heads');
+  ul.innerHTML='';
+  heads.forEach(h=>{
+    const li=document.createElement('li');
+    li.innerHTML=`<span>${escapeHtml(h)}</span>`;
+    const b=document.createElement('button');
+    b.className='copy';b.textContent='Copy';
+    b.onclick=()=>{navigator.clipboard.writeText(h);b.textContent='Copied ✓';setTimeout(()=>b.textContent='Copy',1200);};
+    li.appendChild(b);
+    ul.appendChild(li);
+  });
+
+  const r=document.getElementById('result');
+  r.classList.add('show');
+  document.getElementById('form').style.display='none';
+  r.scrollIntoView({behavior:'smooth'});
+}
+
+function copyAll(){
+  const t=[...document.querySelectorAll('#heads span')].map(s=>'• '+s.textContent).join('\n');
+  navigator.clipboard.writeText(t);
+  event.target.textContent='Copied all ✓';
+  setTimeout(()=>event.target.textContent='⧉ Copy all headlines',1400);
+}
+function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+</script>
+</body>
+</html>

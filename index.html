@@ -322,16 +322,25 @@ ${heads}
 For each, briefly note why your rewrite is stronger.`;
 }
 const POLISH_API='https://copyapi.rahawins.com/polish';
+const KEYSTORE='copyCompass.key';
+function getKey(){
+  let k=localStorage.getItem(KEYSTORE);
+  if(!k){ k=prompt('Enter your Copy Compass password:'); if(k){ localStorage.setItem(KEYSTORE,k); } }
+  return k;
+}
 async function polishInApp(){
   const btn=document.getElementById('polishbtn');
   const note=document.getElementById('polishnote');
   const out=document.getElementById('polishout');
+  const key=getKey();
+  if(!key){ return; }  // user cancelled the password prompt
   polishPrompt=buildPolishPrompt();
   btn.disabled=true; btn.style.opacity='.6'; btn.textContent='⏳ Claude is polishing…';
   note.textContent='Working — this usually takes 20–40 seconds.';
   out.style.display='none';
   try{
-    const r=await fetch(POLISH_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:polishPrompt})});
+    const r=await fetch(POLISH_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key,prompt:polishPrompt})});
+    if(r.status===401){ localStorage.removeItem(KEYSTORE); throw new Error('wrong-password'); }
     const data=await r.json();
     if(!r.ok||!data.text){throw new Error(data.error||'no response');}
     out.innerHTML='<h3 style="margin:0 0 8px">✨ Claude\'s polished headlines</h3>'+
@@ -340,8 +349,9 @@ async function polishInApp(){
     out.scrollIntoView({behavior:'smooth',block:'nearest'});
     note.textContent='Done. Run it again anytime to get fresh variations.';
   }catch(e){
-    out.innerHTML='<h3 style="margin:0 0 6px;color:var(--warn)">Couldn\'t reach Claude</h3>'+
-      '<div style="color:var(--mut);font-size:14px">The AI service didn\'t respond. It may be waking up — wait a moment and try again.</div>';
+    const wrong=e&&e.message==='wrong-password';
+    out.innerHTML='<h3 style="margin:0 0 6px;color:var(--warn)">'+(wrong?'Wrong password':'Couldn\'t reach Claude')+'</h3>'+
+      '<div style="color:var(--mut);font-size:14px">'+(wrong?'That password wasn\'t right. Click the button again to re-enter it.':'The AI service didn\'t respond. It may be waking up — wait a moment and try again.')+'</div>';
     out.style.display='block';
     note.textContent='';
   }finally{

@@ -143,8 +143,17 @@
     <p class="hint" style="margin:0">Built from your answers. Edit the wording to your voice, then test the winners.</p>
     <ul class="heads" id="heads"></ul>
 
-    <button class="btn" style="margin-top:18px" onclick="polishWithClaude()">✨ Polish these with Claude</button>
-    <p class="hint" id="polishnote" style="margin:8px 0 0">Opens Claude in a new tab with your headlines ready to improve. Uses your own Claude account — just press Enter when it opens.</p>
+    <button class="btn" style="margin-top:18px" onclick="polishWithAI()">✨ Polish these with AI</button>
+    <p class="hint" id="polishnote" style="margin:8px 0 0">Copies a ready-made prompt, then opens the free AI of your choice. Paste it in (Ctrl+V) and press Enter — works with any AI account.</p>
+    <div id="aichooser" style="display:none">
+      <p class="hint" style="margin:14px 0 8px;color:var(--ink)">✅ Prompt copied! Now open your AI and paste (Ctrl+V):</p>
+      <div class="pill-row">
+        <button class="btn ghost" onclick="openAI('chatgpt')">Open ChatGPT</button>
+        <button class="btn ghost" onclick="openAI('claude')">Open Claude</button>
+        <button class="btn ghost" onclick="openAI('gemini')">Open Gemini</button>
+        <button class="btn ghost" onclick="openAI('copilot')">Open Copilot</button>
+      </div>
+    </div>
     <div class="pill-row">
       <button class="btn ghost" onclick="location.reload()">↺ Start over</button>
       <button class="btn ghost" onclick="copyAll()">⧉ Copy all headlines</button>
@@ -300,15 +309,15 @@ function copyAll(){
 }
 function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
-// ---- hand the headlines to Claude (uses the user's own Claude account) ----
-function polishWithClaude(){
+// ---- hand the headlines to whatever AI the visitor uses (no account required from us) ----
+let polishPrompt='';
+function buildPolishPrompt(){
   const chip=lbl=>{
     const el=[...document.querySelectorAll('#diag .chip')].find(c=>c.textContent.startsWith(lbl));
     return el?el.textContent.replace(lbl,'').trim():'';
   };
   const heads=[...document.querySelectorAll('#heads span')].map((s,i)=>`${i+1}. ${s.textContent}`).join('\n');
-  const prompt=
-`You are an expert direct-response copywriter. Below is my offer and some draft headlines. For each headline, give me 2 sharper, more specific, higher-converting rewrites that keep the same core angle. Avoid hype and clichés — make them concrete and believable.
+  return `You are an expert direct-response copywriter. Below is my offer and some draft headlines. For each headline, give me 2 sharper, more specific, higher-converting rewrites that keep the same core angle. Avoid hype and clichés — make them concrete and believable.
 
 WHAT I'M SELLING: ${chip('Selling:')}
 WHAT MY CUSTOMER DEEPLY WANTS: ${chip('Their want:')}
@@ -319,17 +328,23 @@ DRAFT HEADLINES:
 ${heads}
 
 For each, briefly note why your rewrite is stronger.`;
-
-  // Copy as a fallback in case the pre-fill doesn't carry over
-  navigator.clipboard && navigator.clipboard.writeText(prompt);
-
-  const url='https://claude.ai/new?q='+encodeURIComponent(prompt);
-  window.open(url,'_blank');
-
-  const note=document.getElementById('polishnote');
-  if(note){
-    note.innerHTML='✅ Opened Claude in a new tab with your headlines. If the box is empty, just paste (Ctrl+V) — I copied it for you.';
-  }
+}
+function polishWithAI(){
+  polishPrompt=buildPolishPrompt();
+  if(navigator.clipboard){navigator.clipboard.writeText(polishPrompt);}
+  document.getElementById('aichooser').style.display='block';
+  document.getElementById('aichooser').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function openAI(which){
+  if(navigator.clipboard && polishPrompt){navigator.clipboard.writeText(polishPrompt);}
+  const q=encodeURIComponent(polishPrompt);
+  const urls={
+    chatgpt:'https://chatgpt.com/?q='+q,   // ChatGPT pre-fills from ?q
+    claude:'https://claude.ai/new?q='+q,   // Claude pre-fills from ?q
+    gemini:'https://gemini.google.com/app',// Gemini: paste
+    copilot:'https://copilot.microsoft.com'// Copilot: paste
+  };
+  window.open(urls[which]||urls.chatgpt,'_blank');
 }
 </script>
 </body>

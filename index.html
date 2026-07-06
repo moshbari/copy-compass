@@ -143,17 +143,9 @@
     <p class="hint" style="margin:0">Built from your answers. Edit the wording to your voice, then test the winners.</p>
     <ul class="heads" id="heads"></ul>
 
-    <button class="btn" style="margin-top:18px" onclick="polishWithAI()">✨ Polish these with AI</button>
-    <p class="hint" id="polishnote" style="margin:8px 0 0">Copies a ready-made prompt, then opens the free AI of your choice. Paste it in (Ctrl+V) and press Enter — works with any AI account.</p>
-    <div id="aichooser" style="display:none">
-      <p class="hint" style="margin:14px 0 8px;color:var(--ink)">✅ Prompt copied! Now open your AI and paste (Ctrl+V):</p>
-      <div class="pill-row">
-        <button class="btn ghost" onclick="openAI('chatgpt')">Open ChatGPT</button>
-        <button class="btn ghost" onclick="openAI('claude')">Open Claude</button>
-        <button class="btn ghost" onclick="openAI('gemini')">Open Gemini</button>
-        <button class="btn ghost" onclick="openAI('copilot')">Open Copilot</button>
-      </div>
-    </div>
+    <button class="btn" id="polishbtn" style="margin-top:18px" onclick="polishInApp()">✨ Polish these with Claude</button>
+    <p class="hint" id="polishnote" style="margin:8px 0 0">Claude rewrites your headlines right here — sharper, 2 variations each. Takes ~20–40 seconds.</p>
+    <div id="polishout" class="strat" style="display:none;border-left-color:var(--accent)"></div>
     <div class="pill-row">
       <button class="btn ghost" onclick="location.reload()">↺ Start over</button>
       <button class="btn ghost" onclick="copyAll()">⧉ Copy all headlines</button>
@@ -329,22 +321,32 @@ ${heads}
 
 For each, briefly note why your rewrite is stronger.`;
 }
-function polishWithAI(){
+const POLISH_API='https://copyapi.rahawins.com/polish';
+async function polishInApp(){
+  const btn=document.getElementById('polishbtn');
+  const note=document.getElementById('polishnote');
+  const out=document.getElementById('polishout');
   polishPrompt=buildPolishPrompt();
-  if(navigator.clipboard){navigator.clipboard.writeText(polishPrompt);}
-  document.getElementById('aichooser').style.display='block';
-  document.getElementById('aichooser').scrollIntoView({behavior:'smooth',block:'nearest'});
-}
-function openAI(which){
-  if(navigator.clipboard && polishPrompt){navigator.clipboard.writeText(polishPrompt);}
-  const q=encodeURIComponent(polishPrompt);
-  const urls={
-    chatgpt:'https://chatgpt.com/?q='+q,   // ChatGPT pre-fills from ?q
-    claude:'https://claude.ai/new?q='+q,   // Claude pre-fills from ?q
-    gemini:'https://gemini.google.com/app',// Gemini: paste
-    copilot:'https://copilot.microsoft.com'// Copilot: paste
-  };
-  window.open(urls[which]||urls.chatgpt,'_blank');
+  btn.disabled=true; btn.style.opacity='.6'; btn.textContent='⏳ Claude is polishing…';
+  note.textContent='Working — this usually takes 20–40 seconds.';
+  out.style.display='none';
+  try{
+    const r=await fetch(POLISH_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:polishPrompt})});
+    const data=await r.json();
+    if(!r.ok||!data.text){throw new Error(data.error||'no response');}
+    out.innerHTML='<h3 style="margin:0 0 8px">✨ Claude\'s polished headlines</h3>'+
+      '<div style="white-space:pre-wrap;color:var(--ink);font-size:15px;line-height:1.6">'+escapeHtml(data.text)+'</div>';
+    out.style.display='block';
+    out.scrollIntoView({behavior:'smooth',block:'nearest'});
+    note.textContent='Done. Run it again anytime to get fresh variations.';
+  }catch(e){
+    out.innerHTML='<h3 style="margin:0 0 6px;color:var(--warn)">Couldn\'t reach Claude</h3>'+
+      '<div style="color:var(--mut);font-size:14px">The AI service didn\'t respond. It may be waking up — wait a moment and try again.</div>';
+    out.style.display='block';
+    note.textContent='';
+  }finally{
+    btn.disabled=false; btn.style.opacity='1'; btn.textContent='✨ Polish these with Claude';
+  }
 }
 </script>
 </body>

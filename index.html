@@ -143,6 +143,8 @@
     <p class="hint" style="margin:0">Built from your answers. Edit the wording to your voice, then test the winners.</p>
     <ul class="heads" id="heads"></ul>
 
+    <button class="btn" style="margin-top:18px" onclick="polishWithClaude()">✨ Polish these with Claude</button>
+    <p class="hint" id="polishnote" style="margin:8px 0 0">Opens Claude in a new tab with your headlines ready to improve. Uses your own Claude account — just press Enter when it opens.</p>
     <div class="pill-row">
       <button class="btn ghost" onclick="location.reload()">↺ Start over</button>
       <button class="btn ghost" onclick="copyAll()">⧉ Copy all headlines</button>
@@ -297,6 +299,38 @@ function copyAll(){
   setTimeout(()=>event.target.textContent='⧉ Copy all headlines',1400);
 }
 function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+// ---- hand the headlines to Claude (uses the user's own Claude account) ----
+function polishWithClaude(){
+  const chip=lbl=>{
+    const el=[...document.querySelectorAll('#diag .chip')].find(c=>c.textContent.startsWith(lbl));
+    return el?el.textContent.replace(lbl,'').trim():'';
+  };
+  const heads=[...document.querySelectorAll('#heads span')].map((s,i)=>`${i+1}. ${s.textContent}`).join('\n');
+  const prompt=
+`You are an expert direct-response copywriter. Below is my offer and some draft headlines. For each headline, give me 2 sharper, more specific, higher-converting rewrites that keep the same core angle. Avoid hype and clichés — make them concrete and believable.
+
+WHAT I'M SELLING: ${chip('Selling:')}
+WHAT MY CUSTOMER DEEPLY WANTS: ${chip('Their want:')}
+HOW AWARE THEY ARE: ${chip('Awareness:')}
+HOW CROWDED THE MARKET IS: ${chip('Market noise:')}
+
+DRAFT HEADLINES:
+${heads}
+
+For each, briefly note why your rewrite is stronger.`;
+
+  // Copy as a fallback in case the pre-fill doesn't carry over
+  navigator.clipboard && navigator.clipboard.writeText(prompt);
+
+  const url='https://claude.ai/new?q='+encodeURIComponent(prompt);
+  window.open(url,'_blank');
+
+  const note=document.getElementById('polishnote');
+  if(note){
+    note.innerHTML='✅ Opened Claude in a new tab with your headlines. If the box is empty, just paste (Ctrl+V) — I copied it for you.';
+  }
+}
 </script>
 </body>
 </html>
